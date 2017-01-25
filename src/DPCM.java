@@ -27,7 +27,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class DPCM extends JPanel{
 	private static JFrame frame;
 	private static final long serialVersionUID = 1L;
-	private static final String author = "Lai, Pätzold";		// TODO: type in your name here
+	private static final String author = "Lai, Pätzold";		
 	private static final String initialFilename = "test1.jpg";
 	private static final File openPath = new File(".");
 	private static final int border = 10;
