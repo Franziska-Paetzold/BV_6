@@ -81,7 +81,7 @@ public class DPCM extends JPanel{
         		ImageCoder coder = new ImageCoder(argbOrigPixels, box.getItemAt(box.getSelectedIndex()), imgViewInput.getImgWidth(), imgViewInput.getImgHeight());
     			imgViewPraedikation.setPixels(coder.getPixelsNew());
     			imgViewPraedikation.applyChanges();
-    			ImageDecoder decoder = new ImageDecoder(imgViewPraedikation.getPixels(),box.getItemAt(box.getSelectedIndex()), imgViewPraedikation.getImgWidth(), imgViewPraedikation.getImgHeight());
+    			ImageDecoder decoder = new ImageDecoder(coder.getErrors(),box.getItemAt(box.getSelectedIndex()), imgViewPraedikation.getImgWidth(), imgViewPraedikation.getImgHeight());
     			imgViewReconstruction.setPixels(decoder.getPixelsNew());
     			imgViewReconstruction.applyChanges();
     			refreshEntropie();
@@ -105,7 +105,7 @@ public class DPCM extends JPanel{
         	        ImageCoder coder = new ImageCoder(argbOrigPixels, box.getItemAt(box.getSelectedIndex()), imgViewInput.getImgWidth(), imgViewInput.getImgHeight());
         			imgViewPraedikation.setPixels(coder.getPixelsNew());
         			imgViewPraedikation.applyChanges();
-        			ImageDecoder decoder = new ImageDecoder(imgViewPraedikation.getPixels(),box.getItemAt(box.getSelectedIndex()), imgViewPraedikation.getImgWidth(), imgViewPraedikation.getImgHeight());
+        			ImageDecoder decoder = new ImageDecoder(coder.getErrors(),box.getItemAt(box.getSelectedIndex()), imgViewPraedikation.getImgWidth(), imgViewPraedikation.getImgHeight());
         			imgViewReconstruction.setPixels(decoder.getPixelsNew());
         			imgViewReconstruction.applyChanges();
         			refreshEntropie();
@@ -118,7 +118,7 @@ public class DPCM extends JPanel{
         ImageCoder coder = new ImageCoder(argbOrigPixels, box.getItemAt(box.getSelectedIndex()), imgViewInput.getImgWidth(), imgViewInput.getImgHeight());
 		imgViewPraedikation.setPixels(coder.getPixelsNew());
 		imgViewPraedikation.applyChanges();
-		ImageDecoder decoder = new ImageDecoder(imgViewPraedikation.getPixels(),box.getItemAt(box.getSelectedIndex()), imgViewPraedikation.getImgWidth(), imgViewPraedikation.getImgHeight());
+		ImageDecoder decoder = new ImageDecoder(coder.getErrors(),box.getItemAt(box.getSelectedIndex()), imgViewPraedikation.getImgWidth(), imgViewPraedikation.getImgHeight());
 		imgViewReconstruction.setPixels(decoder.getPixelsNew());
 		imgViewReconstruction.applyChanges();
 		refreshEntropie();

@@ -2,6 +2,9 @@
 public class ImageCoder {
 	private int[] pixels;
 	private int[] pixelsNew;
+	private int[] errors = null;
+	
+
 	private int width;
 	private int height;
 
@@ -35,9 +38,13 @@ public class ImageCoder {
 		}
 	}
 
-	private int[] calcA() {
+	private int calcA() {
 		pixelsNew = new int[pixels.length];
+		
+		errors = new int[pixels.length];
 
+		int gA = 0;
+		
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				int posX = y * width + x;
@@ -49,11 +56,14 @@ public class ImageCoder {
 				int gNew;
 
 				if (posA < 0) {
-					gNew = 128;
+					gA = 128;
 				} else {
 					int argbA = pixels[posA];
-					int gA = (argbA) & 0xff;
-					gNew = 128 + (gX - gA);
+					 gA = (argbA) & 0xff;
+				}
+					int error = (gX - gA);
+					
+					gNew = error + 128;
 
 					if (gNew > 255) {
 						gNew = 255;
@@ -61,18 +71,24 @@ public class ImageCoder {
 					if (gNew < 0) {
 						gNew = 0;
 					}
-				}
+				
 
 				pixelsNew[posX] = (0xFF << 24) | (gNew << 16) | (gNew << 8) | gNew;
+			    errors[posX] = error;
 				
 			}
 		}
-		return pixelsNew;
+		return gA;
 
 	}
 	
-	private int[] calcB() {
+	private int calcB() {
 		pixelsNew = new int[pixels.length];
+
+		errors = new int[pixels.length];
+		
+
+		int gA = 0;
 
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
@@ -83,13 +99,15 @@ public class ImageCoder {
 				int gX = (argbX) & 0xff;
 
 				int gNew;
-
 				if (posA < 0) {
-					gNew = 128;
+					gA = 128;
 				} else {
 					int argbA = pixels[posA];
-					int gA = (argbA) & 0xff;
-					gNew = 128 + (gX - gA);
+					 gA = (argbA) & 0xff;
+				}
+					int error = (gX - gA);
+					
+					gNew = error + 128;
 
 					if (gNew > 255) {
 						gNew = 255;
@@ -97,18 +115,23 @@ public class ImageCoder {
 					if (gNew < 0) {
 						gNew = 0;
 					}
-				}
+				
 
 				pixelsNew[posX] = (0xFF << 24) | (gNew << 16) | (gNew << 8) | gNew;
+			    errors[posX] = error;
 				
 			}
 		}
-		return pixelsNew;
+		return gA;
 	}
 
-	private int[] calcC() {
+	private int calcC() {
 		pixelsNew = new int[pixels.length];
 
+		errors = new int[pixels.length];
+
+
+		int gA = 0;
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				int posX = y * width + x;
@@ -120,11 +143,14 @@ public class ImageCoder {
 				int gNew;
 
 				if (posA < 0) {
-					gNew = 128;
+					gA = 128;
 				} else {
 					int argbA = pixels[posA];
-					int gA = (argbA) & 0xff;
-					gNew = 128 + (gX - gA);
+					 gA = (argbA) & 0xff;
+				}
+					int error = (gX - gA);
+					
+					gNew = error + 128;
 
 					if (gNew > 255) {
 						gNew = 255;
@@ -132,40 +158,66 @@ public class ImageCoder {
 					if (gNew < 0) {
 						gNew = 0;
 					}
-				}
+				
 
 				pixelsNew[posX] = (0xFF << 24) | (gNew << 16) | (gNew << 8) | gNew;
+			    errors[posX] = error;
 			}
 		}
-		return pixelsNew;
+		return gA;
+	}
+	
+	private int[] abc(int i){
+		int[] res = {128,128,128};
+		
+		int posA = i - 1;
+		if (posA >=0) res[0] = pixels[posA];
+		
+		int posB = i - width;
+		if (posB >= 0) res[1] = pixels[posB];
+		
+		int posC = i -width -1;
+		if (posC >= 0) res[2] = pixels[posC];
+		
+		return res;
 	}
 	
 	private void calcABC() {
-		int[] pixelsA = calcA();
-		int[] pixelsB = calcB();
-		int[] pixelsC = calcC();
+		pixelsNew = new int[pixels.length];
+		errors = new int[pixels.length];
+
 		
-		for (int i=0; i<pixelsA.length; i++)
+		for (int i=0; i<pixels.length; i++)
 		{
-			pixelsNew[i]= pixelsA[i] + pixelsB[i] - pixelsC[i];
+			int pixelsA = abc(i)[0];
+			int pixelsB = abc(i)[1];
+			int pixelsC = abc(i)[2];
+			
+			int error= (pixels[i] & 255) - ((pixelsA & 255) + (pixelsB & 255) - (pixelsC & 255));
+			errors[i] = error;
+			
+			error = error  + 128;
+			if (error < 0) error = 0;
+			if (error > 255) error = 255;
+			pixelsNew[i] = (0XFF << 24) | (error << 16) | (error << 8) | error;
 		}
 
 	}
 	
 	private void calcAdaptiv() {
-		int[] pixelsA = calcA();
-		int[] pixelsB = calcB();
-		int[] pixelsC = calcC();
+		int pixelsA = calcA();
+		int pixelsB = calcB();
+		int pixelsC = calcC();
 		
-		for (int i=0; i<pixelsA.length; i++)
+		for (int i=0; i<pixels.length; i++)
 		{
-			if (Math.abs(pixelsA[i]-pixelsC[i])<(Math.abs(pixelsB[i]-pixelsC[i])))
+			if (Math.abs(pixelsA-pixelsC)<(Math.abs(pixelsB-pixelsC)))
 			{
-				pixelsNew[i]= pixelsB[i];
+				pixelsNew[i]= pixelsB;
 			}
 			else
 			{
-				pixelsNew[i]= pixelsA[i];
+				pixelsNew[i]= pixelsA;
 			}
 		}
 
@@ -173,12 +225,16 @@ public class ImageCoder {
 	}
 	
 	private void calcAB() {
-		int[] pixelsA = calcA();
-		int[] pixelsB = calcB();
+		int pixelsA = calcA();
+		int pixelsB = calcB();
 		
-		for (int i=0; i<pixelsA.length; i++)
+		for (int i=0; i<pixels.length; i++)
 		{
-			pixelsNew[i]= ((pixelsA[i] + pixelsB[i]) /2);
+			//Differenz (Error) berechnen
+			// pixelsA
+			// pixelsB übernehmen aus input
+			
+			pixelsNew[i]= ((pixelsA + pixelsB) /2);
 			int argb = pixelsNew[i];
 			int g = (argb) & 0xff;
 
@@ -200,6 +256,9 @@ public class ImageCoder {
 		return pixelsNew;
 	}
 	
+	public int[] getErrors() {
+		return errors;
+	}
 	
 	
 }
